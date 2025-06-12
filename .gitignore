@@ -1,0 +1,7 @@
+.bash_history
+.bash_logout
+.bashrc
+.profile
+CMakeFiles/
+build/
+test/
