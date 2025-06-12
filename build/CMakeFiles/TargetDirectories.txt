@@ -1,3 +1,0 @@
-/home/sql/build/CMakeFiles/stpdSQL.dir
-/home/sql/build/CMakeFiles/edit_cache.dir
-/home/sql/build/CMakeFiles/rebuild_cache.dir
