@@ -5,6 +5,8 @@
 Executor::Executor(DatabaseManager &db_manager) : db_manager(db_manager) {}
 
 void Executor::execute(const Command &cmd) {
+    /// DDL
+
     if (auto *create_db = dynamic_cast<const CreateDatabaseCommand *>(&cmd)) {
 
         db_manager.createDatabase(create_db->dbname);
@@ -34,7 +36,11 @@ void Executor::execute(const Command &cmd) {
 
         db_manager.getCurrentDatabase()->dropTable(drop_tbl->table_name);
 
-    } else if (auto *insert = dynamic_cast<const InsertCommand *>(&cmd)) {
+    }
+
+    /// DML
+
+    else if (auto *insert = dynamic_cast<const InsertCommand *>(&cmd)) {
 
         if (!db_manager.getCurrentDatabase())
             throw std::runtime_error("No database selected");

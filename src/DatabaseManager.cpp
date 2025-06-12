@@ -29,12 +29,23 @@ void DatabaseManager::dropDatabase(const std::string &dbname) {
 }
 
 void DatabaseManager::useDatabase(const std::string &dbname) {
+
+    if (current_db && current_db->getName() == dbname) {
+        std::cout << "Already using database '" + dbname + "'" << std::endl;
+        return;
+    }
+
     std::filesystem::path db_path = "data/" + dbname;
+
     if (!std::filesystem::exists(db_path)) {
         throw std::runtime_error("Database '" + dbname + "' does not exist");
     }
+
     current_db = std::make_unique<Database>(dbname);
+
     std::cout << "Switched to database '" + dbname + "'\n";
 }
 
-Database *DatabaseManager::getCurrentDatabase() const { return current_db.get(); }
+Database *DatabaseManager::getCurrentDatabase() const {
+    return current_db.get();
+}

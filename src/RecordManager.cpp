@@ -17,6 +17,11 @@ RecordManager::RecordManager(const std::string &filename,
     }
 }
 
+RecordManager::~RecordManager() {
+    file.flush();
+    file.close();
+}
+
 bool RecordManager::openFile_try(std::ios_base::openmode mode) {
     file.open(filename, mode);
     if (!file.is_open()) {
@@ -50,18 +55,21 @@ size_t RecordManager::insertRecord(const std::vector<std::string> &values) {
     size_t record_id = pos / record_size;
     char flag = 1;
     file.write(&flag, 1);
+
     for (size_t i = 0; i < columns.size(); ++i) {
         if (columns[i].type == ColumnType::INT) {
-            int val = std::stoi(values[i]);
+            int val = std::stoi(values[i]); // Remove space auto
             file.write(reinterpret_cast<const char *>(&val), sizeof(int));
         } else {
             std::string val =
-                values[i].substr(1, values[i].size() - 2); // Remove quotes
+                values[i].substr(values[i].find_first_of('\"'),
+                                 values[i].size() - 2); // Remove quotes
             char buffer[256] = {0};
             std::strncpy(buffer, val.c_str(), 255);
             file.write(buffer, 256);
         }
     }
+
     file.flush();
     return record_id;
 }
@@ -128,8 +136,12 @@ size_t RecordManager::getRecordCount() {
 void RecordManager::clear() {
 
     file.close();
-    openFile(std::ios::out | std::ios::binary | std::ios::trunc);
+
+    openFile(std::ios::out | std::ios::binary |
+             std::ios::trunc); // trunc the size of the .dat to zero
+
     file.close();
+
     openFile(std::ios::in | std::ios::out | std::ios::binary);
 }
 
@@ -161,7 +173,7 @@ bool RecordManager::matchCondition(const std::vector<std::string> &record,
         std::string cond_val =
             value.substr(1, value.size() - 2); // Remove quotes
 
-        if (op == "=")
+        if (op == "=" || op == "==")
             return rec_val == cond_val;
         if (op == "<")
             return rec_val < cond_val;

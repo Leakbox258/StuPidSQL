@@ -5,16 +5,34 @@
 #include <stdexcept>
 
 Table::Table(const std::string &db_name, const std::string &table_name,
-             const std::vector<Column> &columns, bool isNew)
+             const std::vector<Column> &columns)
     : db_name(db_name), name(table_name), columns(columns),
       record_manager(pwd + db_name + "/" + table_name + ".dat", columns) {
+
+    std::string idxType{};
     for (const auto &col : columns) {
+
+        col.type == ColumnType::INT ? idxType += '\x00' : idxType += '\x01';
+        col.is_primary ? idxType += '\x00' : idxType += '\x01';
+        idxType += col.name + '\xff';
+
         if (col.is_primary) {
             index_manager = std::make_unique<IndexManager>(
                 pwd + db_name + "/" + table_name + ".idx", col);
             break;
         }
     }
+
+    std::fstream idxInfoFile(pwd + db_name + "/" + table_name + ".info",
+                             std::ios::out | std::ios::binary |
+                                 std::ios::trunc);
+
+    if (!idxInfoFile)
+        throw std::runtime_error("can not create " + pwd + db_name + "/" +
+                                 table_name + ".info\n");
+
+    idxInfoFile.write(idxType.c_str(), idxType.length());
+    idxInfoFile.close();
 }
 
 size_t Table::getColumnIndex(const std::string &column_name) const {

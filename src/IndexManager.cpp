@@ -57,6 +57,10 @@ IndexManager::IndexManager(const std::string &filename,
     }
 }
 
+IndexManager::~IndexManager() {
+    flush(); // idxs write back
+}
+
 void IndexManager::insertKey(const std::string &key, size_t record_id) {
     index[key] = record_id;
 }

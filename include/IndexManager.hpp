@@ -10,6 +10,7 @@
 class IndexManager {
 public:
     IndexManager(const std::string &filename, const Column &key_column);
+    ~IndexManager();
     void insertKey(const std::string &key, size_t record_id);
     void removeKey(const std::string &key);
     std::vector<size_t> find(const std::string &key,

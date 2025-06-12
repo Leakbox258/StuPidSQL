@@ -11,6 +11,8 @@ class RecordManager {
 public:
     RecordManager(const std::string &filename,
                   const std::vector<Column> &columns);
+    ~RecordManager();
+
     size_t insertRecord(const std::vector<std::string> &values);
     std::vector<std::string> readRecord(size_t record_id);
     void deleteRecord(size_t record_id);

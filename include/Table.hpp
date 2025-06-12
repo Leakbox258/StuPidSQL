@@ -12,7 +12,7 @@
 class Table {
 public:
     Table(const std::string &db_name, const std::string &table_name,
-          const std::vector<Column> &columns, bool isNew = true);
+          const std::vector<Column> &columns);
     void insert(const std::vector<std::string> &values);
     void select(const std::string &column, const std::string &where_cond = "");
     void del(const std::string &where_cond = "");
