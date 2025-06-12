@@ -1,5 +1,4 @@
 ---
-# 使用时放在主目录下而非.vscode
 Language:        Cpp
 BasedOnStyle:  LLVM
 AccessModifierOffset: -4
