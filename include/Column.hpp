@@ -2,7 +2,10 @@
 #ifndef COLUMN_HPP
 #define COLUMN_HPP
 
+#include <filesystem>
 #include <string>
+
+inline std::string pwd{};
 
 enum class ColumnType { INT, STRING };
 

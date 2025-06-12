@@ -242,7 +242,8 @@
         "*.code": "cpp",
         "bitset": "cpp",
         "regex": "cpp",
-        "ncurses.h": "c"
+        "ncurses.h": "c",
+        "filesystem": "cpp"
     },
     "C_Cpp.clang_format_fallbackStyle": "none",
     "editor.formatOnSave": true,

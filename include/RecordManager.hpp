@@ -9,22 +9,26 @@
 
 class RecordManager {
 public:
-    RecordManager(const std::string &filename, const std::vector<Column> &columns);
+    RecordManager(const std::string &filename,
+                  const std::vector<Column> &columns);
     size_t insertRecord(const std::vector<std::string> &values);
     std::vector<std::string> readRecord(size_t record_id);
     void deleteRecord(size_t record_id);
-    void updateRecord(size_t record_id, size_t col_idx, const std::string &value);
+    void updateRecord(size_t record_id, size_t col_idx,
+                      const std::string &value);
     size_t getRecordCount();
     void clear();
-    bool matchCondition(const std::vector<std::string> &record, size_t col_idx, const std::string &op,
-                        const std::string &value);
+    bool matchCondition(const std::vector<std::string> &record, size_t col_idx,
+                        const std::string &op, const std::string &value);
 
 private:
     std::string filename;
     std::vector<Column> columns;
     size_t record_size;
     std::fstream file;
+    bool openFile_try(std::ios_base::openmode mode);
     void openFile(std::ios_base::openmode mode);
+    void createFile(std::ios_base::openmode mode);
 };
 
 #endif

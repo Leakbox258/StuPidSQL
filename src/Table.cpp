@@ -4,12 +4,14 @@
 #include <sstream>
 #include <stdexcept>
 
-Table::Table(const std::string &db_name, const std::string &table_name, const std::vector<Column> &columns)
+Table::Table(const std::string &db_name, const std::string &table_name,
+             const std::vector<Column> &columns, bool isNew)
     : db_name(db_name), name(table_name), columns(columns),
-      record_manager(db_name + "/" + table_name + ".dat", columns) {
+      record_manager(pwd + db_name + "/" + table_name + ".dat", columns) {
     for (const auto &col : columns) {
         if (col.is_primary) {
-            index_manager = std::make_unique<IndexManager>(db_name + "/" + table_name + ".idx", col);
+            index_manager = std::make_unique<IndexManager>(
+                pwd + db_name + "/" + table_name + ".idx", col);
             break;
         }
     }
@@ -103,7 +105,8 @@ void Table::del(const std::string &where_cond) {
                 if (record_manager.matchCondition(record, cond_idx, op, val)) {
                     record_manager.deleteRecord(i);
                     if (index_manager)
-                        index_manager->removeKey(record[getColumnIndex(index_manager->getKeyColumn().name)]);
+                        index_manager->removeKey(record[getColumnIndex(
+                            index_manager->getKeyColumn().name)]);
                     ++deleted;
                 }
             }
@@ -117,7 +120,8 @@ void Table::del(const std::string &where_cond) {
     std::cout << deleted << " row(s) deleted\n";
 }
 
-void Table::update(const std::string &column, const std::string &value, const std::string &where_cond) {
+void Table::update(const std::string &column, const std::string &value,
+                   const std::string &where_cond) {
     size_t col_idx = getColumnIndex(column);
     if (columns[col_idx].is_primary) {
         throw std::runtime_error("Cannot update primary key");
@@ -137,7 +141,8 @@ void Table::update(const std::string &column, const std::string &value, const st
         } else {
             for (size_t i = 0; i < record_manager.getRecordCount(); ++i) {
                 auto record = record_manager.readRecord(i);
-                if (record_manager.matchCondition(record, cond_idx, op, cond_val)) {
+                if (record_manager.matchCondition(record, cond_idx, op,
+                                                  cond_val)) {
                     record_manager.updateRecord(i, col_idx, value);
                     ++updated;
                 }

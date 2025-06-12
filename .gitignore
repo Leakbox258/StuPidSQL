@@ -3,5 +3,5 @@
 .bashrc
 .profile
 CMakeFiles/
-build/
 test/
+build/
