@@ -6,8 +6,6 @@
 
 Database::Database(const std::string &name) : name(name) {
 
-    std::filesystem::path dbpath(pwd + '/' + name);
-
     struct info {
         uint8_t ready = 0;
         std::vector<Column> columns{};
@@ -15,14 +13,17 @@ Database::Database(const std::string &name) : name(name) {
 
     std::map<std::string, info> loadtb{};
 
-    for (auto &file : std::filesystem::directory_iterator(dbpath)) {
+    for (auto &file : std::filesystem::directory_iterator(pwd + name)) {
 
         if (!file.is_regular_file())
             continue;
 
         auto filename = file.path().string();
 
-        auto tb_name = filename.substr(0, filename.find_first_of('.'));
+        auto last_slash = filename.find_last_of('/');
+        auto tb_name = filename.substr(last_slash + 1,
+                                       filename.find_first_of('.', last_slash) -
+                                           (last_slash + 1));
 
         ++loadtb[tb_name].ready;
 
@@ -32,7 +33,10 @@ Database::Database(const std::string &name) : name(name) {
             if (!file)
                 throw std::runtime_error("fail to open " + filename);
 
+            file.seekg(0, std::ios::end);
+
             const auto size = file.tellg();
+
             file.seekg(0, std::ios::beg);
 
             std::string content;
@@ -49,7 +53,11 @@ Database::Database(const std::string &name) : name(name) {
                                        : column.type = ColumnType::STRING;
                 content[i++] == '\x00' ? void(column.is_primary = true) : nop;
 
-                column.name = content.substr(i, content.find_first_of('\xff'));
+                auto end_pos = content.find_first_of('\xff', i);
+                column.name = content.substr(i, end_pos - i);
+                i = end_pos + 1;
+
+                columns.emplace_back(column);
             }
         }
     }
@@ -82,9 +90,11 @@ void Database::dropTable(const std::string &table_name) {
         std::remove_if(tables.begin(), tables.end(), [&](const auto &table) {
             return table->name == table_name;
         });
+
     if (it == tables.end()) {
         throw std::runtime_error("Table '" + table_name + "' does not exist");
     }
+
     tables.erase(it, tables.end());
     std::cout << "Table '" + table_name + "' dropped\n";
 }
@@ -94,5 +104,6 @@ Table *Database::getTable(const std::string &table_name) {
         if (table->name == table_name)
             return table.get();
     }
+
     throw std::runtime_error("Table '" + table_name + "' does not exist");
 }

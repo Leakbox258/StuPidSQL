@@ -19,7 +19,7 @@ Table::Table(const std::string &db_name, const std::string &table_name,
         if (col.is_primary) {
             index_manager = std::make_unique<IndexManager>(
                 pwd + db_name + "/" + table_name + ".idx", col);
-            break;
+            continue;
         }
     }
 

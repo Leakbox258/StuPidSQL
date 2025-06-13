@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 project(StuPidSQL)
 
 add_compile_options("-g")
-add_compile_options("-O2")
+# add_compile_options("-O2")
 add_link_options("-rdynamic")
 
 aux_source_directory(src SRC)

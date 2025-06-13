@@ -62,7 +62,7 @@ size_t RecordManager::insertRecord(const std::vector<std::string> &values) {
             file.write(reinterpret_cast<const char *>(&val), sizeof(int));
         } else {
             std::string val =
-                values[i].substr(values[i].find_first_of('\"'),
+                values[i].substr(values[i].find_first_of('\"') + 1,
                                  values[i].size() - 2); // Remove quotes
             char buffer[256] = {0};
             std::strncpy(buffer, val.c_str(), 255);
