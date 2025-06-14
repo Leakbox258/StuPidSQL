@@ -58,7 +58,37 @@ IndexManager::IndexManager(const std::string &filename,
 }
 
 IndexManager::~IndexManager() {
-    flush(); // idxs write back
+    std::ofstream file(filename, std::ios::binary | std::ios::trunc);
+
+    if (!file) {
+        return;
+    }
+
+    // file head
+    uint32_t magic = INDEX_MAGIC;
+    uint8_t col_type = (key_column.type == ColumnType::INT) ? 0 : 1;
+    uint32_t record_count = static_cast<uint32_t>(index.size());
+
+    file.write(reinterpret_cast<const char *>(&magic), sizeof(magic));
+    file.write(reinterpret_cast<const char *>(&col_type), sizeof(col_type));
+    file.write(reinterpret_cast<const char *>(&record_count),
+               sizeof(record_count));
+
+    for (const auto &[key, record_id] : index) {
+        uint32_t id = static_cast<uint32_t>(record_id);
+
+        if (key_column.type == ColumnType::INT) {
+            int int_key = std::stoi(key);
+            file.write(reinterpret_cast<const char *>(&int_key),
+                       sizeof(int_key));
+        } else {
+            char str_key[256] = {0};
+            std::strncpy(str_key, key.c_str(), sizeof(str_key) - 1);
+            file.write(str_key, sizeof(str_key));
+        }
+
+        file.write(reinterpret_cast<const char *>(&id), sizeof(id));
+    }
 }
 
 void IndexManager::insertKey(const std::string &key, size_t record_id) {
@@ -74,16 +104,20 @@ std::vector<size_t> IndexManager::find(const std::string &key,
         int val = std::stoi(key);
         for (const auto &[k, id] : index) {
             int k_val = std::stoi(k);
-            if ((op == "=" && k_val == val) || (op == "<" && k_val < val) ||
-                (op == ">" && k_val > val)) {
+            if ((op == "==" && k_val == val) || (op == "=" && k_val == val) ||
+                (op == "<=" && k_val == val) || (op == "<" && k_val < val) ||
+                (op == ">=" && k_val == val) || (op == ">" && k_val > val) ||
+                (op == "!=" && k_val == val)) {
                 results.push_back(id);
             }
         }
     } else {
         std::string val = key.substr(1, key.size() - 2); // Remove quotes
         for (const auto &[k, id] : index) {
-            if ((op == "=" && k == val) || (op == "<" && k < val) ||
-                (op == ">" && k > val)) {
+            if ((op == "==" && k == val) || (op == "=" && k == val) ||
+                (op == "<=" && k == val) || (op == "<" && k < val) ||
+                (op == ">=" && k == val) || (op == ">" && k > val) ||
+                (op == "!=" && k == val)) {
                 results.push_back(id);
             }
         }

@@ -96,11 +96,25 @@ void Database::dropTable(const std::string &table_name) {
     }
 
     tables.erase(it, tables.end());
+
+    for (auto &file : std::filesystem::directory_iterator(pwd + name)) {
+        auto filename = file.path().string();
+
+        if (inSet(filename, // NOLINT
+                  pwd + name + '/' + table_name + ".idx",
+                  pwd + name + '/' + table_name + ".info",
+                  pwd + name + '/' + table_name + ".dat")) {
+
+            std::filesystem::remove(file.path());
+        }
+    }
+
     std::cout << "Table '" + table_name + "' dropped\n";
 }
 
 Table *Database::getTable(const std::string &table_name) {
     for (auto &table : tables) {
+
         if (table->name == table_name)
             return table.get();
     }

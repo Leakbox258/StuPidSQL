@@ -38,9 +38,8 @@ void RecordManager::openFile(std::ios_base::openmode mode) {
 
 void RecordManager::createFile(std::ios_base::openmode mode) {
     file.open(filename, mode);
-    if (!file.is_open()) {
+    if (!file.is_open())
         throw std::runtime_error("Failed to create file: " + filename);
-    }
 
     char flag = 0; // Not in use
     for (size_t i = 0; i < record_size; ++i) {
@@ -61,9 +60,11 @@ size_t RecordManager::insertRecord(const std::vector<std::string> &values) {
             int val = std::stoi(values[i]); // Remove space auto
             file.write(reinterpret_cast<const char *>(&val), sizeof(int));
         } else {
+
             std::string val =
-                values[i].substr(values[i].find_first_of('\"') + 1,
-                                 values[i].size() - 2); // Remove quotes
+                values[i].substr(values[i].find_first_of('\"'),
+                                 values[i].find_last_of('\"') + 1);
+
             char buffer[256] = {0};
             std::strncpy(buffer, val.c_str(), 255);
             file.write(buffer, 256);
@@ -148,8 +149,10 @@ void RecordManager::clear() {
 bool RecordManager::matchCondition(const std::vector<std::string> &record,
                                    size_t col_idx, const std::string &op,
                                    const std::string &value) {
+
     if (record.empty())
         return false;
+
     if (columns[col_idx].type == ColumnType::INT) {
 
         int rec_val = std::stoi(record[col_idx]);

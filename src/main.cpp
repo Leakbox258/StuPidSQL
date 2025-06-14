@@ -1,9 +1,19 @@
 #include "Executor.hpp"
 #include "Parser.hpp"
+#include "tools.hpp"
+#include <cstring>
 #include <iostream>
 #include <memory>
 
-int main() {
+int main(int argc, char *argv[]) {
+
+    if (argc > 1 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))) {
+        printf(SOFTWARE_INFO);
+        printf("Usage: rotvi [filename] "
+               "    If no filename is provided, it will open a new file.\n");
+        return 0;
+    }
+
     DatabaseManager db_manager;
 
     Executor executor(db_manager);
